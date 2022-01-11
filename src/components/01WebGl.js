@@ -1,47 +1,22 @@
-<template>
-  <div class=''>
-    <canvas
-      ref="canvas"
-      class="canvas-wrapper"
-    ></canvas>
-  </div>
-</template>
-
-<script setup>
-import { onMounted, ref } from "vue";
-import { createShader, createProgram } from "@/utils/index";
-
-const canvas = ref("");
+import getShader from "./UseShader";
 
 const vertex = `
-	attribute vec4 a_position;
+attribute vec4 a_position;
 
-	void main() {
-		gl_Position = a_position;
-	}
+void main() {
+	gl_Position = a_position;
+}
 `;
+
 const fragment = `
-	precision mediump float;
-	void main() {
-		gl_FragColor = vec4(1, 0, 0.5, 1);
-	}
+precision mediump float;
+void main() {
+	gl_FragColor = vec4(1, 0, 0.5, 1);
+}
 `;
 
-onMounted(() => {
-  // canvas.value.width = 400;
-  // canvas.value.height = 400;
-  const width = canvas.value.clientWidth;
-  const height = canvas.value.clientHeight;
-
-  canvas.value.width = width;
-  canvas.value.height = height;
-
-  const gl = canvas.value.getContext("webgl");
-
-  // 创建可以在 GPU 上运行的 GLSL 着色程序
-  const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertex);
-  const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragment);
-  const program = createProgram(gl, vertexShader, fragmentShader);
+export default function renderGL(gl) {
+  const program = getShader(gl, vertex, fragment);
 
   // 找到 GLSL 着色程序中存放数据的变量属性值的位置
   const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
@@ -79,13 +54,7 @@ onMounted(() => {
   );
 
   const cont = 3; // 着色器运行次数
-  gl.drawArrays(gl.TRIANGLES, 0, 3);
-});
-</script>
+  gl.drawArrays(gl.TRIANGLES, 0, cont);
 
-<style scoped lang="scss">
-.canvas-wrapper {
-  width: 500px;
-  height: 500px;
+  return gl;
 }
-</style>
